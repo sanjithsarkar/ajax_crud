@@ -89,7 +89,8 @@ class ProductController extends Controller
         //
     }
 
-    public function storeProduct(Request $request){
+    public function storeProduct(Request $request)
+    {
         //dd($request->all());
 
         $request->validate([
