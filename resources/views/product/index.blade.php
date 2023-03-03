@@ -10,14 +10,16 @@
 
     <link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css" rel="stylesheet">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>  
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.js"></script>
     <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
     <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <title>Hello, world!</title>
+
+    <title>Ajax Crud Project!</title>
 </head>
 
 <body>
@@ -62,24 +64,25 @@
                 </div>
                 <div class="modal-body">
                     <form id="productForm" name="productForm" class="form-horizontal">
-                       <input type="hidden" name="product_id" id="product_id">
+                        <input type="hidden" name="product_id" id="product_id">
                         <div class="form-group">
                             <label for="name" class="col-sm-2 control-label">Name</label>
                             <div class="col-sm-12">
-                                <input type="text" class="form-control" id="product_name" name="product_name" placeholder="Enter Name" value="" maxlength="50" required="">
+                                <input type="text" class="form-control" id="name" name="name"
+                                    placeholder="Enter Name" value="" maxlength="50" required="">
                             </div>
                         </div>
-           
+
                         <div class="form-group">
                             <label class="col-sm-2 control-label">Details</label>
                             <div class="col-sm-12">
                                 <textarea id="price" name="price" required="" placeholder="Enter Details" class="form-control"></textarea>
                             </div>
                         </div>
-            
+
                         <div class="col-sm-offset-2 col-sm-10">
-                         <button type="submit" class="btn btn-primary" id="saveBtn" value="create">Save changes
-                         </button>
+                            <button type="submit" class="btn btn-primary" id="saveBtn" value="create">Save changes
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -88,35 +91,157 @@
     </div>
 
     <script>
-        $(function () {
-    
+        $(function() {
+
+            // ----------------------  token 
+
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
+
+
+
+            // ---------------------- View data using by Datatable 
+
             var table = $('.data-table').DataTable({
-        processing: true,
-        serverSide: true,
-        ajax: "{{ route('products.index') }}",
-        columns: [
-            {data: 'DT_RowIndex', name: 'DT_RowIndex'},
-            {data: 'product_name', name: 'product_name'},
-            {data: 'price', name: 'price'},
-            {data: 'action', name: 'action', orderable: false, searchable: false},
-        ]
-    });
+                processing: true,
+                serverSide: true,
+                ajax: "{{ route('products.index') }}",
+                columns: [{
+                        data: 'DT_RowIndex',
+                        name: 'DT_RowIndex'
+                    },
+                    {
+                        data: 'name',
+                        name: 'name'
+                    },
+                    {
+                        data: 'price',
+                        name: 'price'
+                    },
+                    {
+                        data: 'action',
+                        name: 'action',
+                        orderable: false,
+                        searchable: false
+                    },
+                ]
+            });
 
 
-    $('body').on('click', '.editProduct', function () {
-      var product_id = $(this).data('id');
-      $.get("{{ route('products.index') }}" +'/' + product_id +'/edit', function (data) {
-          $('#modelHeading').html("Edit Product");
-          $('#saveBtn').val("edit-user");
-          $('#ajaxModel').modal('show');
-          $('#product_id').val(data.id);
-          $('#product_name').val(data.product_name);
-          $('#price').val(data.price);
-      });
 
-    });
-    
-  });
+            // ---------------------- view data with modal form for Edit
+
+
+            $('body').on('click', '.editProduct', function() {
+                var product_id = $(this).data('id');
+                $.get("{{ route('products.index') }}" + '/' + product_id + '/edit', function(data) {
+                    $('#modelHeading').html("Edit Product");
+                    $('#saveBtn').val("edit-user");
+                    $('#ajaxModel').modal('show');
+                    $('#product_id').val(data.id);
+                    $('#name').val(data.name);
+                    $('#price').val(data.price);
+                });
+
+            });
+
+
+
+            // ---------------------- Update data with modal
+
+            $('#saveBtn').click(function(e) {
+                e.preventDefault();
+
+
+                var name = $('#name').val();
+                var price = $('#price').val();
+
+                // product_id input with hidden 
+                var id = $('#product_id').val();
+
+                $.ajax({
+                    //data: $('#productForm').serialize(),
+                    url: "/update/product/" + id,
+                    type: "POST",
+                    dataType: 'json',
+                    data: {
+                        name: name,
+                        price: price,
+                        _token: "{{ csrf_token() }}"
+                    },
+                    success: function(data) {
+
+                        console.log(data)
+
+                        // Start Message 
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: 'top-end',
+
+                            showConfirmButton: false,
+                            timer: 3000
+                        })
+                        if ($.isEmptyObject(data.error)) {
+                            Toast.fire({
+                                type: 'success',
+                                icon: 'success',
+                                title: 'Product Updated Successfully!!',
+                            })
+
+
+                            // form reset, close modal & table refresh
+
+                            $('#productForm').trigger("reset");
+                            $('#ajaxModel').modal('hide');
+                            table.draw();
+                        } else {
+                            Toast.fire({
+                                type: 'error',
+                                icon: 'error',
+                                title: data.error
+                            })
+                        }
+                        // End Message
+
+                    },
+
+                    //--------------- Error Message
+
+                    error: function(data) {
+                        console.log('Error:', data);
+                        $('#saveBtn').html('Save Changes');
+                    }
+                });
+            });
+
+
+
+
+            // -----------------------------  Delete Product
+
+
+            $('body').on('click', '.deleteProduct', function() {
+                var id = $(this).data('id');
+                    confirm("Are You sure want to delete !");
+                $.ajax({
+                    type: "DELETE",
+                    url: '/delete/product/' + id,
+                    data:{_token: "{{ csrf_token() }}"},
+                    success: function(data) {
+                        table.draw()
+                    },
+                    error: function(data) {
+                        console.log('Error:', data);
+                    }
+                });
+            })
+
+
+        });
     </script>
 </body>
 

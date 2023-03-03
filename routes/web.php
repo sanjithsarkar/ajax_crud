@@ -20,3 +20,5 @@ Route::get('/', function () {
 
 Route::resource('products', ProductController::class);
 Route::post('/store/product', [ProductController::class, 'storeProduct']);
+Route::post('/update/product/{id}', [ProductController::class, 'updateProduct']);
+Route::delete('/delete/product/{id}', [ProductController::class, 'deleteProduct']);

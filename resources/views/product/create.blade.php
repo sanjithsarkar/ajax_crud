@@ -35,9 +35,9 @@
                                 <div class="card-body">
                                     <div class="form-group">
                                         <label for="exampleFormControlInput1" class="form-label">Product Name</label>
-                                        <input type="text" class="form-control" id="product_name"
-                                            placeholder="Product Name" name="product_name">
-                                            @error('product_name')
+                                        <input type="text" class="form-control" id="name"
+                                            placeholder="Product Name" name="name">
+                                            @error('name')
                                             <div class="alert alert-danger mt-3">{{ $message }}</div>
                                             @enderror
                                             
@@ -76,14 +76,14 @@
         $('#product_form').on('submit', function(event) {
 
             event.preventDefault();
-            var product_name = $('#product_name').val();
+            var name = $('#name').val();
             var price = $('#price').val();
 
             var request = $.ajax({
                 url: '/store/product',
                 type: "POST",
                 data: {
-                    product_name: product_name,
+                    name: name,
                     price: price,
                     _token: "{{ csrf_token() }}"
                 },

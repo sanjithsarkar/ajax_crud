@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
+use Carbon\Carbon;
 
 use function GuzzleHttp\Promise\all;
 
@@ -53,7 +54,7 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        //
+
     }
 
     /**
@@ -78,7 +79,7 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
-        //
+
     }
 
     /**
@@ -94,14 +95,33 @@ class ProductController extends Controller
         //dd($request->all());
 
         $request->validate([
-            'product_name' => 'required|unique:products|max:255',
+            'name' => 'required|unique:products|max:255',
         ]);
 
         Product::insert([
-            'product_name' => $request->product_name,
+            'name' => $request->name,
             'price' => $request->price,
+            'created_at' => Carbon::now(),
         ]);
 
         return response()->json("done");
+    }
+
+    public function updateProduct(Request $request ,$id){
+
+        $request->validate([
+            'name' => 'required',
+        ]);
+        $product = Product::where("id", $id)->first();
+        $product->name = $request->name;
+        $product->price = $request->price;
+        $product->save();
+        return response()->json($product);
+    }
+
+    public function deleteProduct($id){
+
+        $product = Product::where("id", $id)->delete();
+        return response()->json('deleted!!');
     }
 }
