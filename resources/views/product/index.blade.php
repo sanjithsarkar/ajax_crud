@@ -1,17 +1,27 @@
 <!doctype html>
 <html lang="en">
-  <head>
+
+<head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css" />
+
+    <link href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.js"></script>
+    <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
+
 
     <title>Hello, world!</title>
-  </head>
-  <body>
-    
+</head>
+
+<body>
+
     <div class="container">
         <div class="card">
             <div class="card-header">
@@ -21,54 +31,93 @@
                     </div>
                     <div class="col-md-4">
                         <div>
-                            <button class="btn btn-success"><a href="{{ route('products.create')}}" style="color: #fff; text-decoration: none">Add Product</a></button>
+                            <button class="btn btn-success"><a href="{{ route('products.create') }}"
+                                    style="color: #fff; text-decoration: none">Add Product</a></button>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="card-body">
-                <table class="table table-hover">
+                <table class="table table-bordered data-table" id="dataTable">
                     <thead>
                         <tr>
-                          <th scope="col">#</th>
-                          <th scope="col">First</th>
-                          <th scope="col">Last</th>
-                          <th scope="col">Handle</th>
+                            <th>No</th>
+                            <th>product_name</th>
+                            <th>price</th>
+                            <th width="280px">Action</th>
                         </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <th scope="row">1</th>
-                          <td>Mark</td>
-                          <td>Otto</td>
-                          <td>@mdo</td>
-                        </tr>
-                        <tr>
-                          <th scope="row">2</th>
-                          <td>Jacob</td>
-                          <td>Thornton</td>
-                          <td>@fat</td>
-                        </tr>
-                        <tr>
-                          <th scope="row">3</th>
-                          <td colspan="2">Larry the Bird</td>
-                          <td>@twitter</td>
-                        </tr>
-                      </tbody>
-                  </table>
+                    </thead>
+                    <tbody id="myTable">
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
-    <!-- Optional JavaScript; choose one of the two! -->
+    <div class="modal fade" id="ajaxModel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="modelHeading"></h4>
+                </div>
+                <div class="modal-body">
+                    <form id="productForm" name="productForm" class="form-horizontal">
+                       <input type="hidden" name="product_id" id="product_id">
+                        <div class="form-group">
+                            <label for="name" class="col-sm-2 control-label">Name</label>
+                            <div class="col-sm-12">
+                                <input type="text" class="form-control" id="product_name" name="product_name" placeholder="Enter Name" value="" maxlength="50" required="">
+                            </div>
+                        </div>
+           
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Details</label>
+                            <div class="col-sm-12">
+                                <textarea id="price" name="price" required="" placeholder="Enter Details" class="form-control"></textarea>
+                            </div>
+                        </div>
+            
+                        <div class="col-sm-offset-2 col-sm-10">
+                         <button type="submit" class="btn btn-primary" id="saveBtn" value="create">Save changes
+                         </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <!-- Option 1: Bootstrap Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script>
+        $(function () {
+    
+            var table = $('.data-table').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: "{{ route('products.index') }}",
+        columns: [
+            {data: 'DT_RowIndex', name: 'DT_RowIndex'},
+            {data: 'product_name', name: 'product_name'},
+            {data: 'price', name: 'price'},
+            {data: 'action', name: 'action', orderable: false, searchable: false},
+        ]
+    });
 
-    <!-- Option 2: Separate Popper and Bootstrap JS -->
-    <!--
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
-    -->
-  </body>
+
+    $('body').on('click', '.editProduct', function () {
+      var product_id = $(this).data('id');
+      $.get("{{ route('products.index') }}" +'/' + product_id +'/edit', function (data) {
+          $('#modelHeading').html("Edit Product");
+          $('#saveBtn').val("edit-user");
+          $('#ajaxModel').modal('show');
+          $('#product_id').val(data.id);
+          $('#product_name').val(data.product_name);
+          $('#price').val(data.price);
+      });
+
+    });
+    
+  });
+    </script>
+</body>
+
 </html>

@@ -34,7 +34,7 @@
                             <div class="card">
                                 <div class="card-body">
                                     <div class="form-group">
-                                        <label for="exampleFormControlInput1" class="form-label">Email address</label>
+                                        <label for="exampleFormControlInput1" class="form-label">Product Name</label>
                                         <input type="text" class="form-control" id="product_name"
                                             placeholder="Product Name" name="product_name">
                                             @error('product_name')
@@ -52,7 +52,7 @@
                                         <button type="submit" class="btn btn-info">Submit</button>
                                     </div>
 
-                                    <div class="col-md-4">
+                                    <div class="d-flex justify-content-center">
                                         <div>
                                             <button class="btn btn-success"><a href="{{ url('/')}}" style="color: #fff; text-decoration: none">Products</a></button>
                                         </div>
