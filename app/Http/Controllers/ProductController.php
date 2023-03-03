@@ -6,6 +6,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Validator;
 
 use function GuzzleHttp\Promise\all;
 
@@ -94,17 +95,23 @@ class ProductController extends Controller
     {
         //dd($request->all());
 
-        $request->validate([
+        $validator =  Validator::make($request->all(), [
             'name' => 'required|unique:products|max:255',
         ]);
+    
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()]);
+        } else {
 
-        Product::insert([
-            'name' => $request->name,
-            'price' => $request->price,
-            'created_at' => Carbon::now(),
-        ]);
+            Product::insert([
+                'name' => $request->name,
+                'price' => $request->price,
+                'created_at' => Carbon::now(),
+            ]);
 
-        return response()->json("done");
+            return response()->json(['success' => 'Validation passed']);
+        }
+        
     }
 
     public function updateProduct(Request $request ,$id){

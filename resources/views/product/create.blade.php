@@ -37,15 +37,14 @@
                                         <label for="exampleFormControlInput1" class="form-label">Product Name</label>
                                         <input type="text" class="form-control" id="name"
                                             placeholder="Product Name" name="name">
-                                            @error('name')
-                                            <div class="alert alert-danger mt-3">{{ $message }}</div>
-                                            @enderror
-                                            
+                                        <span class=" btn-outline-danger" id="error-name"></span>
+
                                     </div>
                                     <div class="form-group mt-3">
                                         <label for="Price" class="form-label">Price</label>
                                         <input type="text" class="form-control" id="price"
                                             placeholder="Product Price" name="price">
+                                        <span id="error-price"></span>
                                     </div>
 
                                     <div class="mt-3">
@@ -54,7 +53,8 @@
 
                                     <div class="d-flex justify-content-center">
                                         <div>
-                                            <button class="btn btn-success"><a href="{{ url('/')}}" style="color: #fff; text-decoration: none">Products</a></button>
+                                            <button class="btn btn-success"><a href="{{ url('/') }}"
+                                                    style="color: #fff; text-decoration: none">Products</a></button>
                                         </div>
                                     </div>
                                 </div>
@@ -92,34 +92,44 @@
                 success: function(data) {
                     console.log(data)
 
-                    // Start Message 
-                    const Toast = Swal.mixin({
-                        toast: true,
-                        position: 'top-end',
+                    $('#error-name').text('');
+                    $('#error-price').text('');
 
-                        showConfirmButton: false,
-                        timer: 3000
-                    })
-                    if ($.isEmptyObject(data.error)) {
-                        Toast.fire({
-                            type: 'success',
-                            icon: 'success',
-                            title: 'Product Inserted Successfully!!',
-                        })
+                    if (data.errors) {
+                        if (data.errors.name) {
+                            $('#error-name').text(data.errors.name[0]);
+                        }
 
-                        $("#product_form")[0].reset();
+                        if (data.errors.price) {
+                            $('#error-price').text(data.errors.price[0]);
+                        }
                     } else {
-                        Toast.fire({
-                            type: 'error',
-                            icon: 'error',
-                            title: data.error
+                        // Start Message 
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: 'top-end',
+
+                            showConfirmButton: false,
+                            timer: 3000
                         })
+
+                        Toast.fire({
+                                type: 'success',
+                                icon: 'success',
+                                title: 'Product Updated Successfully!!',
+                            })
+
+                            $("#product_form")[0].reset();
+
                     }
-                    // End Message
+
+                    
                 }
             })
         })
     </script>
+
+
 
 
     <script>
