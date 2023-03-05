@@ -90,11 +90,34 @@
                         searchable: false,
                         render: function (data, type, full, meta) {
                         return '<a href="{{ route("tasks.edit", ":id") }}" class="edit btn btn-primary btn-sm">Edit</a>'.replace(':id', full.id) +
-                               '<a href="javascript:void(0)" data-id="' + full.id + '" class="delete btn btn-danger btn-sm">Delete</a>';
+                               '<a href="javascript:void(0)" data-id="' + full.id + '" class="delete btn btn-danger btn-sm deleteTask">Delete</a>';
                     }
                 },
                 ]
             });
+
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
+
+            $('body').on('click', '.deleteTask', function() {
+                var id = $(this).data('id');
+                    confirm("Are You sure want to delete !");
+                $.ajax({
+                    type: "DELETE",
+                    url: '/delete/task/' + id,
+                    data:{_token: "{{ csrf_token() }}"},
+                    success: function(data) {
+                        $('#dataTable').DataTable().ajax.reload();
+                    },
+                    error: function(data) {
+                        console.log('Error:', data);
+                    }
+                });
+            })
         });
     </script>
 </body>

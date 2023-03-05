@@ -144,6 +144,29 @@ class TaskController extends Controller
      */
     public function destroy(Task $task)
     {
-        //
+        $product = Task::where('id', $task->id)->first();
+
+        // Delete the product's image from storage
+        $imagePath = storage_path('app/' . $product->image);
+        if (file_exists($imagePath)) {
+            unlink($imagePath);
+        }
+
+        // Delete the product and its associated image from the database
+        $product->delete();
+
+    }
+
+    public function deleteTask($id){
+        $product = Task::findOrFail($id);
+
+        // Delete the product's image from storage
+        $imagePath = storage_path('app/' . $product->image);
+        if (file_exists($imagePath)) {
+            unlink($imagePath);
+        }
+
+        // Delete the product and its associated image from the database
+        $product->delete();
     }
 }

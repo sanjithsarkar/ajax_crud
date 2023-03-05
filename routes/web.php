@@ -25,3 +25,4 @@ Route::post('/update/product/{id}', [ProductController::class, 'updateProduct'])
 Route::delete('/delete/product/{id}', [ProductController::class, 'deleteProduct']);
 
 Route::resource('tasks', TaskController::class);
+Route::delete('/delete/task/{id}', [TaskController::class, 'deleteTask']);
