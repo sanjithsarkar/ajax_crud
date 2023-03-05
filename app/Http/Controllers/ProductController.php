@@ -78,6 +78,7 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $product = Product::find($product->id);
+
         return response()->json($product);
     }
 
@@ -123,7 +124,7 @@ class ProductController extends Controller
         // }
 
 
-            //------------------------ Store Data with Image
+        //------------------------ Store Data with Image
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()]);
@@ -147,15 +148,32 @@ class ProductController extends Controller
 
     public function updateProduct(Request $request, $id)
     {
-
-        $request->validate([
+        $validator =  Validator::make($request->all(), [
             'name' => 'required',
+            'image' => 'required|image',
+            'price' => 'required',
+            //'image' => 'required|mimes:pdf|max:2048',
         ]);
-        $product = Product::where("id", $id)->first();
-        $product->name = $request->name;
-        $product->price = $request->price;
-        $product->save();
-        return response()->json($product);
+
+        //dd($request->all());
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()]);
+        } else {
+
+            $product = Product::where("id", $id)->first();
+            if ($request->file('image')) {
+                $image = $request->file('image');
+                unlink(storage_path('app/' . $product->image));
+                $imageName = $image->getClientOriginalName();
+                $imgPath = $image->storeAs('public/images', $imageName);
+
+                $product->name = $request->name;
+                $product->price = $request->price;
+                $product->image = $imgPath;
+                $product->save();
+            }
+        }
     }
 
     public function deleteProduct($id)

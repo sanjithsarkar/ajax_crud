@@ -33,8 +33,8 @@
                     </div>
                     <div class="col-md-4">
                         <div>
-                            <button class="btn btn-success"><a href="{{ route('products.create') }}"
-                                    style="color: #fff; text-decoration: none">Add Product</a></button>
+                            <span class="btn btn-success"><a href="{{ route('products.create') }}"
+                                    style="color: #fff; text-decoration: none">Add Product</a></span>
                         </div>
                     </div>
                 </div>
@@ -64,7 +64,8 @@
                     <h4 class="modal-title" id="modelHeading"></h4>
                 </div>
                 <div class="modal-body">
-                    <form id="productForm" name="productForm" class="form-horizontal">
+                    <form id="myForm" name="myForm" class="form-horizontal">
+                        @csrf
                         <input type="hidden" name="product_id" id="product_id">
                         <div class="form-group">
                             <label for="name" class="col-sm-2 control-label">Name</label>
@@ -80,6 +81,16 @@
                                 <textarea id="price" name="price" required="" placeholder="Enter Details" class="form-control"></textarea>
                             </div>
                         </div>
+
+
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Image</label>
+                            <div class="col-sm-12">
+                                <input type="file" class="form-control" id="image" name="image">
+                                <img src="" id="pimage" class="img-thumbnail mt-2" style="max-height: 100px;">
+                            </div>
+                            
+                        </div>
                         
 
                         <div class="col-sm-offset-2 col-sm-10">
@@ -91,6 +102,21 @@
             </div>
         </div>
     </div>
+
+
+    {{-- display selected image for editing --}}
+     
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('#image').change(function(e){
+                var reader = new FileReader();
+                reader.onload = function(e){
+                    $('#pimage').attr('src', e.target.result);
+                }
+                reader.readAsDataURL(e.target.files['0']);
+            })
+        })
+    </script>
 
     <script>
         $(function() {
@@ -150,38 +176,121 @@
                     $('#product_id').val(data.id);
                     $('#name').val(data.name);
                     $('#price').val(data.price);
+                    $('#pimage').attr('src', '/app/' + data.image);
                 });
 
             });
 
 
 
+
+
+
             // ---------------------- Update data with modal
 
-            $('#saveBtn').click(function(e) {
-                e.preventDefault();
+            // $('#saveBtn').click(function(e) {
+            //     e.preventDefault();
 
 
-                var name = $('#name').val();
-                var price = $('#price').val();
+            //     var name = $('#name').val();
+            //     var price = $('#price').val();
 
-                // product_id input with hidden 
-                var id = $('#product_id').val();
+            //     // product_id input with hidden 
+            //     var id = $('#product_id').val();
 
-                $.ajax({
-                    //data: $('#productForm').serialize(),
-                    url: "/update/product/" + id,
-                    type: "POST",
-                    dataType: 'json',
-                    data: {
-                        name: name,
-                        price: price,
-                        _token: "{{ csrf_token() }}"
-                    },
-                    success: function(data) {
+            //     $.ajax({
+            //         //data: $('#productForm').serialize(),
+            //         url: "/update/product/" + id,
+            //         type: "POST",
+            //         dataType: 'json',
+            //         data: {
+            //             name: name,
+            //             price: price,
+            //             _token: "{{ csrf_token() }}"
+            //         },
+            //         success: function(data) {
 
-                        console.log(data)
+            //             console.log(data)
 
+            //             // Start Message 
+            //             const Toast = Swal.mixin({
+            //                 toast: true,
+            //                 position: 'top-end',
+
+            //                 showConfirmButton: false,
+            //                 timer: 3000
+            //             })
+            //             if ($.isEmptyObject(data.error)) {
+            //                 Toast.fire({
+            //                     type: 'success',
+            //                     icon: 'success',
+            //                     title: 'Product Updated Successfully!!',
+            //                 })
+
+
+            //                 // form reset, close modal & table refresh
+
+            //                 $('#productForm').trigger("reset");
+            //                 $('#ajaxModel').modal('hide');
+            //                 table.draw();
+            //             } else {
+            //                 Toast.fire({
+            //                     type: 'error',
+            //                     icon: 'error',
+            //                     title: data.error
+            //                 })
+            //             }
+            //             // End Message
+
+            //         },
+
+            //         //--------------- Error Message
+
+            //         error: function(data) {
+            //             console.log('Error:', data);
+            //             $('#saveBtn').html('Save Changes');
+            //         }
+            //     });
+            // });
+
+
+
+        // ---------------------- Update data with image
+            
+        $('#saveBtn').click(function(e) {
+            e.preventDefault();
+
+            var formElement = document.getElementById("myForm");
+            var formData = new FormData(formElement);
+
+            var id = $('#product_id').val();
+
+            $.ajax({
+                url: "/update/product/" + id,
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(data) {
+                    console.log(data);
+                    $('#error-name').text('');
+                    $('#error-price').text('');
+                    $('#error-image').text('');
+
+                    if (data.errors) {
+                        if (data.errors.name) {
+                            $('#error-name').text(data.errors.name[0]);
+                        }
+
+                        if (data.errors.price) {
+                            $('#error-price').text(data.errors.price[0]);
+                        }
+
+                        if (data.errors.price) {
+                            $('#error-image').text(data.errors.image[0]);
+                        }
+
+                    } else {
                         // Start Message 
                         const Toast = Swal.mixin({
                             toast: true,
@@ -190,38 +299,27 @@
                             showConfirmButton: false,
                             timer: 3000
                         })
-                        if ($.isEmptyObject(data.error)) {
-                            Toast.fire({
+
+                        Toast.fire({
                                 type: 'success',
                                 icon: 'success',
                                 title: 'Product Updated Successfully!!',
                             })
 
-
-                            // form reset, close modal & table refresh
-
                             $('#productForm').trigger("reset");
-                            $('#ajaxModel').modal('hide');
-                            table.draw();
-                        } else {
-                            Toast.fire({
-                                type: 'error',
-                                icon: 'error',
-                                title: data.error
-                            })
-                        }
-                        // End Message
+                             $('#ajaxModel').modal('hide');
+                             table.draw();
 
-                    },
-
-                    //--------------- Error Message
-
-                    error: function(data) {
-                        console.log('Error:', data);
-                        $('#saveBtn').html('Save Changes');
                     }
-                });
+
+                },
+                error: function(xhr, textStatus, error) {
+                    console.log(xhr.statusText);
+                    console.log(textStatus);
+                    console.log(error);
+                }
             });
+        });
 
 
 
