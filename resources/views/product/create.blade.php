@@ -14,6 +14,9 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+
     <title>Hello, world!</title>
 </head>
 
@@ -28,7 +31,8 @@
             </div>
 
             <div class="card-body">
-                <form action="#" method="POST" id="product_form">
+                <form action="#" method="POST"  id="product_form" enctype="multipart/form-data">
+                    @csrf
                     <div class="row d-flex justify-content-center">
                         <div class="col-md-6">
                             <div class="card">
@@ -46,6 +50,13 @@
                                             placeholder="Product Price" name="price">
                                         <span id="error-price"></span>
                                     </div>
+
+                                    <div class="form-group mt-3">
+                                        <label for="Image" class="form-label">Image</label>
+                                        <input type="file" class="form-control" name="image" id="image">
+                                        <span id="error-image"></span>
+                                    </div>
+
 
                                     <div class="mt-3">
                                         <button type="submit" class="btn btn-info">Submit</button>
@@ -73,27 +84,80 @@
             }
         });
 
-        $('#product_form').on('submit', function(event) {
+        // $('#product_form').on('submit', function(event) {
 
-            event.preventDefault();
-            var name = $('#name').val();
-            var price = $('#price').val();
+        //     event.preventDefault();
+        //     var name = $('#name').val();
+        //     var price = $('#price').val();
 
-            var request = $.ajax({
+        //     var request = $.ajax({
+        //         url: '/store/product',
+        //         type: "POST",
+        //         data: {
+        //             name: name,
+        //             price: price,
+        //             _token: "{{ csrf_token() }}"
+        //         },
+        //         dataType: "json",
+
+        //         success: function(data) {
+        //             console.log(data)
+
+        //             $('#error-name').text('');
+        //             $('#error-price').text('');
+
+        //             if (data.errors) {
+        //                 if (data.errors.name) {
+        //                     $('#error-name').text(data.errors.name[0]);
+        //                 }
+
+        //                 if (data.errors.price) {
+        //                     $('#error-price').text(data.errors.price[0]);
+        //                 }
+        //             } else {
+        //                 // Start Message 
+        //                 const Toast = Swal.mixin({
+        //                     toast: true,
+        //                     position: 'top-end',
+
+        //                     showConfirmButton: false,
+        //                     timer: 3000
+        //                 })
+
+        //                 Toast.fire({
+        //                         type: 'success',
+        //                         icon: 'success',
+        //                         title: 'Product Updated Successfully!!',
+        //                     })
+
+        //                     $("#product_form")[0].reset();
+
+        //             }
+
+
+        //         }
+        //     })
+        // })
+
+
+        // Insert data with image using ajax
+
+        $('#product_form').submit(function(e) {
+            e.preventDefault();
+
+            var formData = new FormData(this);
+
+            $.ajax({
                 url: '/store/product',
-                type: "POST",
-                data: {
-                    name: name,
-                    price: price,
-                    _token: "{{ csrf_token() }}"
-                },
-                dataType: "json",
-
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
                 success: function(data) {
-                    console.log(data)
-
+                    console.log(data);
                     $('#error-name').text('');
                     $('#error-price').text('');
+                    $('#error-image').text('');
 
                     if (data.errors) {
                         if (data.errors.name) {
@@ -102,6 +166,10 @@
 
                         if (data.errors.price) {
                             $('#error-price').text(data.errors.price[0]);
+                        }
+
+                        if (data.errors.image) {
+                            $('#error-price').text(data.errors.image[0]);
                         }
                     } else {
                         // Start Message 
@@ -123,10 +191,35 @@
 
                     }
 
-                    
+                },
+                error: function(xhr, textStatus, error) {
+                    console.log(xhr.statusText);
+                    console.log(textStatus);
+                    console.log(error);
                 }
-            })
-        })
+            });
+        });
+
+
+        //----------------------------  PDF Upload-----------------------
+
+        // function submitForm() {
+        //     event.preventDefault(); // prevent default form submission behaviors
+        //     let formData = new FormData();
+        //     formData.append('name', document.getElementById("name").value); // append input values to FormData object
+        //     formData.append('price', document.getElementById("price").value);
+        //     formData.append('image', document.getElementById("image").files[0]);
+        //     formData.append("_token", "{{ csrf_token() }}"); // add CSRF token for security
+        //     // send AJAX request
+        //     axios.post('/store/product', formData)
+        //         .then(response => {
+        //             console.log(response.data);
+        //         })
+        //         .catch(error => {
+        //             console.log(error.response.data);
+        //         });
+        // }
+
     </script>
 
 

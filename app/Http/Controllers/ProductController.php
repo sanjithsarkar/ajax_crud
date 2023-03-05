@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
+use Psy\VersionUpdater\Downloader;
 
 use function GuzzleHttp\Promise\all;
 
@@ -22,23 +24,28 @@ class ProductController extends Controller
         // return view('product.index');
 
         if ($request->ajax()) {
-  
+
             $data = Product::latest()->get();
-  
+
+            foreach ($data as $item) {
+                $item->image = Storage::url($item->image);
+            }
+
             return Datatables::of($data)
-                    ->addIndexColumn()
-                    ->addColumn('action', function($row){
-   
-                           $btn = '<a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Edit" class="edit btn btn-primary btn-sm editProduct">Edit</a>';
-   
-                           $btn = $btn.' <a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->id.'" data-original-title="Delete" class="btn btn-danger btn-sm deleteProduct">Delete</a>';
-    
-                            return $btn;
-                    })
-                    ->rawColumns(['action'])
-                    ->make(true);
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+
+                    $btn = '<a href="javascript:void(0)" data-toggle="tooltip"  data-id="' . $row->id . '" data-original-title="Edit" class="edit btn btn-primary btn-sm editProduct">Edit</a>';
+
+                    $btn = $btn . ' <a href="javascript:void(0)" data-toggle="tooltip"  data-id="' . $row->id . '" data-original-title="Delete" class="btn btn-danger btn-sm deleteProduct">Delete</a>';
+
+                    return $btn;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
         }
-        
+
+
         return view('product.index');
     }
 
@@ -55,7 +62,6 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-
     }
 
     /**
@@ -80,7 +86,6 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
-
     }
 
     /**
@@ -97,24 +102,51 @@ class ProductController extends Controller
 
         $validator =  Validator::make($request->all(), [
             'name' => 'required|unique:products|max:255',
+            'image' => 'required|image',
+            'price' => 'required',
+            //'image' => 'required|mimes:pdf|max:2048',
         ]);
-    
+
+        //------------------------ Store Data without Image
+
+        // if ($validator->fails()) {
+        //     return response()->json(['errors' => $validator->errors()]);
+        // } else {
+
+        //     Product::insert([
+        //         'name' => $request->name,
+        //         'price' => $request->price,
+        //         'created_at' => Carbon::now(),
+        //     ]);
+
+        //     return response()->json(['success' => 'Validation passed']);
+        // }
+
+
+            //------------------------ Store Data with Image
+
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()]);
         } else {
 
+            $image = $request->file('image');
+            $imageName = $image->getClientOriginalName();
+            $imgPath = $image->storeAs('public/images', $imageName);
+
+            //dd($request->all());
             Product::insert([
                 'name' => $request->name,
                 'price' => $request->price,
+                'image' => $imgPath,
                 'created_at' => Carbon::now(),
             ]);
 
             return response()->json(['success' => 'Validation passed']);
         }
-        
     }
 
-    public function updateProduct(Request $request ,$id){
+    public function updateProduct(Request $request, $id)
+    {
 
         $request->validate([
             'name' => 'required',
@@ -126,9 +158,22 @@ class ProductController extends Controller
         return response()->json($product);
     }
 
-    public function deleteProduct($id){
+    public function deleteProduct($id)
+    {
 
-        $product = Product::where("id", $id)->delete();
+        // $product = Product::where("id", $id)->delete();
+
+        $product = Product::findOrFail($id);
+
+        // Delete the product's image from storage
+        $imagePath = storage_path('app/' . $product->image);
+        if (file_exists($imagePath)) {
+            unlink($imagePath);
+        }
+
+        // Delete the product and its associated image from the database
+        $product->delete();
+
         return response()->json('deleted!!');
     }
 }

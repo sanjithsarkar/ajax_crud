@@ -46,6 +46,7 @@
                             <th>No</th>
                             <th>product_name</th>
                             <th>price</th>
+                            <th>File</th>
                             <th width="280px">Action</th>
                         </tr>
                     </thead>
@@ -79,6 +80,7 @@
                                 <textarea id="price" name="price" required="" placeholder="Enter Details" class="form-control"></textarea>
                             </div>
                         </div>
+                        
 
                         <div class="col-sm-offset-2 col-sm-10">
                             <button type="submit" class="btn btn-primary" id="saveBtn" value="create">Save changes
@@ -122,6 +124,9 @@
                         data: 'price',
                         name: 'price'
                     },
+                    {data: 'image', name: 'image', render: function(data, type, full, meta) {
+                        return '<img src="' + data + '" class="img-thumbnail" width="50">';
+                    }},
                     {
                         data: 'action',
                         name: 'action',
