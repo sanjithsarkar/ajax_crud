@@ -25,11 +25,33 @@
 <body>
 
     <div class="container">
+
+        {{----------------------------------  Header ------------------------}}
+
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                        <ul class="navbar-nav mr-auto">
+                            <li class="nav-item active">
+                              <a class="nav-link" href="{{ route('home')}}">Home</a>
+                            </li>
+                            <li class="nav-item active">
+                              <a class="nav-link" href="{{ route('tasks.index')}}">Task</a>
+                            </li>
+                          </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+        {{----------------------------------- Task List ------------------------------}}
+
         <div class="card">
             <div class="card-header">
                 <div class="row d-flex justify-content-center">
                     <div class="col-md-8">
-                        <h3><strong>Product List</strong></h3>
+                        <h3><strong>Task List</strong></h3>
                     </div>
                     <div class="col-md-4">
                         <div>
@@ -40,6 +62,8 @@
                 </div>
             </div>
 
+        {{----------------------------------- Table Data ------------------------------}}
+        
             <div class="card-body">
                 <table class="table table-bordered data-table" id="dataTable">
                     <thead>
@@ -89,7 +113,7 @@
                         orderable: false,
                         searchable: false,
                         render: function (data, type, full, meta) {
-                        return '<a href="{{ route("tasks.edit", ":id") }}" class="edit btn btn-primary btn-sm">Edit</a>'.replace(':id', full.id) +
+                        return '<a href="{{ route("tasks.edit", ":id") }}" class="edit btn btn-primary btn-sm mr-2">Edit</a>'.replace(':id', full.id) +
                                '<a href="javascript:void(0)" data-id="' + full.id + '" class="delete btn btn-danger btn-sm deleteTask">Delete</a>';
                     }
                 },

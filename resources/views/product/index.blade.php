@@ -25,6 +25,9 @@
 <body>
 
     <div class="container">
+
+        {{----------------------------------  Header ------------------------}}
+
         <div class="card">
             <div class="card-header">
                 <div class="row">
@@ -41,6 +44,8 @@
                 </div>
             </div>
         </div>
+
+        {{----------------------------------- Product List ------------------------------}}
         <div class="card">
             <div class="card-header">
                 <div class="row d-flex justify-content-center">
@@ -55,6 +60,9 @@
                     </div>
                 </div>
             </div>
+
+        {{----------------------------------- Table Data ------------------------------}}
+        
             <div class="card-body">
                 <table class="table table-bordered data-table" id="dataTable">
                     <thead>
