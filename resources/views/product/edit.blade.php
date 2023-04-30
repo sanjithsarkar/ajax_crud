@@ -8,6 +8,26 @@
 </head>
 <body>
     <div class="container">
+
+        {{----------------------------------  Header ------------------------}}
+
+        <div class="card">
+            <div class="card-header">
+                <div class="row">
+                    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                        <ul class="navbar-nav mr-auto">
+                            <li class="nav-item active">
+                              <a class="nav-link" href="{{ route('home')}}">Home</a>
+                            </li>
+                            <li class="nav-item active">
+                              <a class="nav-link" href="{{ route('tasks.index')}}">Task</a>
+                            </li>
+                          </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        
         <div class="card">
             <div class="card-header">
                 <div class="d-flex justify-content-center">
